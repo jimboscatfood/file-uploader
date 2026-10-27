@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Uploader - Homepage</title>
+  </head>
+  <body>
+    <% if (locals.user) {%>
+    <h1><%= user.username%>'s File Storage</h1>
+    <h2>Folders</h2>
+    <ul>
+    <% if (!user.masterFolder.subFolders || user.masterFolder.subFolders.length === 0){%>
+      <h3>No Folders</h3>
+    <%} else {user.masterFolder.subFolders.forEach(folder => {%>
+      <li><a href="/folder/<%=folder.id%>"></a></li>
+    <%})}%>
+    </ul>
+    <h2>Files</h2>
+    <ul>
+      <%if (!user.masterFolder.file || user.masterFolder.file.length === 0) {%>
+        <h3>No Files</h3>
+      <%} else {%>
+      <% user.masterFolder.file.forEach(file => {%>
+      <li><%=file.name%></li>
+    </ul>
+    <%})}} else {%> 
+    <form action="/sign-up" method="GET">
+      <button type="submit">Sign Up</button>
+    </form>
+    <form action="/log-in" method="GET">
+      <button type="submit">Log In</button>
+    </form>
+    <% }%>
+  </body>
+</html>
