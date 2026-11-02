@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>New Folder</title>
+  </head>
+  <body>
+    <h1>Create New Folder</h1>
+    <% if (locals.folderId) {%>
+    <form action="/folder/<%=locals.folderId%>/new-folder" method="POST">
+      <label for="folderName">Folder Name: </label>
+      <input id="folderName" name="folderName" type="text" />
+      <button type="submit">Create Folder</button>
+    </form>
+    <%} else {%>
+      <form action="/new-folder" method="POST">
+      <label for="folderName">Folder Name: </label>
+      <input id="folderName" name="folderName" type="text" />
+      <button type="submit">Create Folder</button>
+    <%}%>
+  </body>
+</html>

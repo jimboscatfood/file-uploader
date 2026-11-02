@@ -20,6 +20,7 @@ async function userSignUpGet(req, res) {
 
 //validate user sign up info
 const { body, validationResult, matchedData } = require("express-validator");
+const { name } = require("ejs");
 const usernameFormatErr = "Username must contain only letters and numbers.";
 const usernameLengthErr = "Username must be between 1 and 50 characters.";
 const passwordLengthErr = "Password must contain at least 6 characters.";
@@ -99,6 +100,7 @@ passport.serializeUser((user, done) => {
 //on the other hand, this function will retrieve the id we store in the session data
 // and then query the database using that specific user id to get the corresponding user object
 // and then attach it to req.user so we can access the user object via req.user
+
 // which means we will have to attach the associated info to user returned from the findUserById function
 passport.deserializeUser(async (id, done) => {
   try {
@@ -116,10 +118,68 @@ const userLogInPost = passport.authenticate("local", {
   failureMessage: true,
 });
 
+async function userLogoutGet(req, res, next) {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+}
+
+async function newFolderGet(req, res) {
+  if (req.user) {
+    if (req.params.folderId) {
+      const folderId = req.params.folderId;
+      res.render("new-folder", { folderId: folderId });
+    } else {
+      res.render("new-folder");
+    }
+  } else {
+    res.render("index");
+  }
+}
+
+async function newFolderPost(req, res) {
+  const userId = req.user.id;
+  const folderName = req.body.folderName;
+  const parentId = req.params.folderId || req.user.folders[0].id;
+  await db.addNewFolder(userId, folderName, parentId);
+  if (parentId != req.user.folders[0].id) {
+    res.redirect(`/folder/${parentId}`);
+  }
+  res.redirect("/");
+}
+
+async function deleteFolderPost(req, res) {
+  const folderId = req.params.folderId;
+  const folder = await db.findFolderByFolderId(folderId);
+  const parentId = folder.parentId || req.user.folders[0].id;
+  await db.deleteFolder(folderId);
+  if (parentId != req.user.folders[0].id) {
+    res.redirect(`/folder/${parentId}`);
+  }
+  res.redirect("/");
+}
+
+async function showFolderGet(req, res) {
+  const user = req.user;
+  const folderId = req.params.folderId;
+  const folder = await db.findFolderByFolderId(folderId);
+  res.render("folder", { user: user, folder: folder });
+}
+
+async function uploadFilePost(req, res) {}
+
 module.exports = {
   showIndexGet,
   userSignUpGet,
   userSignUpPost,
   userLogInGet,
   userLogInPost,
+  userLogoutGet,
+  newFolderGet,
+  newFolderPost,
+  deleteFolderPost,
+  showFolderGet,
 };

@@ -24,15 +24,15 @@ model User {
   id Int @id @default(autoincrement())
   username String @unique
   password String
-  masterFolder Folder?
+  folders Folder[]
 }
 
 model Folder {
   id String @id @default(uuid())
   name String 
   file File[]
-  user User @relation(fields: [userId], references:[id]) //1 user to 1 master folder relationship
-  userId Int @unique
+  user User @relation(fields: [userId], references:[id]) //1 user to n folders relationship
+  userId Int 
   //self relations: two separate fields
   //1. the field pointing up to the parent folder
   parentFolder Folder? @relation("Subfolders", fields:[parentId], references:[id])

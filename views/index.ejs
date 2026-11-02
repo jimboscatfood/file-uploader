@@ -9,28 +9,42 @@
     <% if (locals.user) {%>
     <h1><%= user.username%>'s File Storage</h1>
     <h2>Folders</h2>
+    <form action="/new-folder" method="GET">
+        <button type="submit">New Folder</button>
+      </form>
     <ul>
-    <% if (!user.masterFolder.subFolders || user.masterFolder.subFolders.length === 0){%>
+    <% if (!user.folders[0].subFolders || user.folders[0].subFolders.length === 0){%>
       <h3>No Folders</h3>
-    <%} else {user.masterFolder.subFolders.forEach(folder => {%>
-      <li><a href="/folder/<%=folder.id%>"></a></li>
+    <%} else {user.folders[0].subFolders.forEach(folder => {%>
+      <li><a href="/folder/<%=folder.id%>"><%= folder.name%></a>
+      <form action="/delete/<%=folder.id%>" method="POST">
+        <button type="submit" onclick="return confirm('Are you sure you want to delete this folder?');">Delete Folder</button>
+      </form>
+      </li>
     <%})}%>
     </ul>
     <h2>Files</h2>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="file">Choose Your File: </label><input type="file" name="upload"/>
+        <button type="submit">Upload</button>
+      </form>
     <ul>
-      <%if (!user.masterFolder.file || user.masterFolder.file.length === 0) {%>
+      <%if (!user.folders[0].file || user.folders[0].file.length === 0) {%>
         <h3>No Files</h3>
-      <%} else {%>
-      <% user.masterFolder.file.forEach(file => {%>
+      <%} else {user.folders[0].file.forEach(file => {%>
       <li><%=file.name%></li>
     </ul>
-    <%})}} else {%> 
+    <%})}%>
+    <form action="/log-out" method="GET">
+      <button type="submit">Log Out</button>
+    </form>
+    <%} else {%> 
     <form action="/sign-up" method="GET">
       <button type="submit">Sign Up</button>
     </form>
     <form action="/log-in" method="GET">
       <button type="submit">Log In</button>
     </form>
-    <% }%>
+    <%}%>
   </body>
 </html>
