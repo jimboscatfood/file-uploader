@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= locals.file.name%></title>
+  </head>
+  <body>
+    <!-- verifying that the folder belongs to its user -->
+    <% if (file) {%>
+    <h2>File name: <%= file.name%></h2>
+    <h2>Size: <%= Math.round(file.fileSize / 1000000 * 100) / 100 %> MB</h2>
+    <h2>Upload Time: <%=file.uploadTime%></h2>
+    <form action="/file/<%=file.id%>/download" method="GET">
+      <button type="submit">Download File</button>
+    </form>
+    <br>
+    <form action="/file/<%=file.id%>/delete" method="GET">
+      <button type="submit">Delete File</button>
+    </form>
+    <br>
+    <form action="/folder/<%=file.parentId%>" method="GET">
+      <button type="submit">Back to Folder</button>
+    </form>
+    <form action="/" method="GET">
+      <button type="submit">Back to Home</button>
+    </form>
+    <form action="/log-out" method="GET">
+      <button type="submit">Log Out</button>
+    </form>
+    <%} else {%> 
+    <form action="/sign-up" method="GET">
+      <button type="submit">Sign Up</button>
+    </form>
+    <form action="/log-in" method="GET">
+      <button type="submit">Log In</button>
+    </form>
+    <%}%>
+  </body>
+</html>

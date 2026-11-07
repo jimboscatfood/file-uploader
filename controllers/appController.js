@@ -1,3 +1,6 @@
+//import env variables for configuring Cloudinary for uploader
+require("dotenv/config");
+
 const db = require("../db/queries");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
@@ -166,10 +169,119 @@ async function showFolderGet(req, res) {
   const user = req.user;
   const folderId = req.params.folderId;
   const folder = await db.findFolderByFolderId(folderId);
-  res.render("folder", { user: user, folder: folder });
+  res.render("folder", {
+    user: user,
+    folder: folder,
+  });
 }
 
-async function uploadFilePost(req, res) {}
+//set up Cloudinary for cloud upload
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
+
+const validateUploadedFile = [
+  body("upload")
+    .custom((value, { req }) => req.file)
+    .withMessage("Upload file missing")
+    .custom((value, { req }) => {
+      if (!req.file) {
+        return true;
+      }
+      return req.file.size <= 5 * 1024 * 1024;
+    })
+    .withMessage("File should not exceed 5MB"),
+];
+
+const uploadFilePost = [
+  validateUploadedFile,
+  async (req, res) => {
+    const parentId = req.params.folderId || req.user.folders[0].id;
+    const user = req.user;
+    const errors = validationResult(req);
+    if (!errors.isEmpty() && parentId !== req.user.folders[0].id) {
+      const folder = await db.findFolderByFolderId(parentId);
+      return res.status(400).render("folder", {
+        user: user,
+        folder: folder,
+        errors: errors.array(),
+      });
+    } else if (!errors.isEmpty() && parentId == req.user.folders[0].id) {
+      return res.status(400).render("index", {
+        user: req.user,
+        errors: errors.array(),
+      });
+    }
+    const file = req.file;
+    const streamUpload = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        let stream = cloudinary.uploader.upload_stream(
+          { folder: "my_uploads", resource_type: "auto", use_filename: true },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          },
+        );
+        streamifier.createReadStream(fileBuffer).pipe(stream);
+      });
+    };
+    const result = await streamUpload(req.file.buffer);
+    const fileUrl = result.secure_url;
+    const publicId = result.public_id;
+
+    await db.addNewFile(parentId, file, fileUrl, publicId);
+
+    //redirect after successful upload
+    if (parentId !== req.user.folders[0].id) {
+      res.redirect(`/folder/${parentId}`);
+    } else {
+      res.redirect("/");
+    }
+  },
+];
+
+async function readFileInfoGet(req, res) {
+  const fileId = req.params.fileId;
+  const file = await db.findFileByFileId(fileId);
+
+  res.render("file-info", { user: req.user, file: file });
+}
+
+async function deleteFilePost(req, res) {
+  const fileId = req.params.fileId;
+  const file = await db.findFileByFileId(fileId);
+  const parentId = file.parentId;
+  const publicId = file.publicId;
+
+  await cloudinary.uploader.destroy(publicId);
+  await db.deleteFileById(fileId);
+  if (parentId !== req.user.folders[0].id) {
+    res.redirect(`/folder/${parentId}`);
+  } else {
+    res.redirect("/");
+  }
+}
+
+async function downloadFileGet(req, res) {
+  const fileId = req.params.fileId;
+  const file = await db.findFileByFileId(fileId);
+  const publicId = file.publicId;
+
+  const downloadUrl = cloudinary.url(publicId, {
+    flags: `attachment`,
+    secure: true,
+  });
+
+  res.redirect(downloadUrl);
+}
 
 module.exports = {
   showIndexGet,
@@ -182,4 +294,8 @@ module.exports = {
   newFolderPost,
   deleteFolderPost,
   showFolderGet,
+  uploadFilePost,
+  readFileInfoGet,
+  deleteFilePost,
+  downloadFileGet,
 };

@@ -21,3 +21,19 @@ appRouter.post("{/folder{/:folderId}}/new-folder", appController.newFolderPost);
 appRouter.get("/folder/:folderId", appController.showFolderGet);
 
 appRouter.post("/delete/:folderId", appController.deleteFolderPost);
+
+//set up multer middleware for process user's uploaded file
+const multer = require("multer");
+// set up Multer to use Memory Storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+appRouter.post(
+  "{/folder{/:folderId}}/upload",
+  upload.single("upload"),
+  appController.uploadFilePost,
+);
+
+appRouter.get("/file/:fileId", appController.readFileInfoGet);
+appRouter.get("/file/:fileId/delete", appController.deleteFilePost);
+appRouter.get("/file/:fileId/download", appController.downloadFileGet);

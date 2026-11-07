@@ -49,4 +49,5 @@ model File {
   uploadTime DateTime @default(now())
   parentFolder Folder @relation(fields:[parentId], references:[id]) //1 folder to n files relationship
   parentId String
+  publicId String @unique
 }

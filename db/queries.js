@@ -64,6 +64,32 @@ async function findFolderByFolderId(folderId) {
   return folder;
 }
 
+async function addNewFile(parentId, file, fileUrl, publicId) {
+  await prisma.file.create({
+    data: {
+      name: file.originalname,
+      fileUrl: fileUrl,
+      fileSize: file.size, //in MB round with 1 decimal place
+      parentId: parentId,
+      publicId: publicId,
+    },
+  });
+}
+
+async function findFileByFileId(fileId) {
+  const file = await prisma.file.findUnique({
+    where: { id: fileId },
+  });
+
+  return file;
+}
+
+async function deleteFileById(fileId) {
+  await prisma.file.delete({
+    where: { id: fileId },
+  });
+}
+
 module.exports = {
   createNewUser,
   findUserByUsername,
@@ -71,4 +97,7 @@ module.exports = {
   addNewFolder,
   deleteFolder,
   findFolderByFolderId,
+  addNewFile,
+  findFileByFileId,
+  deleteFileById,
 };

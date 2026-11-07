@@ -8,6 +8,7 @@
   <body>
     <% if (locals.user) {%>
     <h1><%= user.username%>'s File Storage</h1>
+    <%- include("./partials/errors.ejs")%>
     <h2>Folders</h2>
     <form action="/new-folder" method="GET">
         <button type="submit">New Folder</button>
@@ -32,9 +33,9 @@
       <%if (!user.folders[0].file || user.folders[0].file.length === 0) {%>
         <h3>No Files</h3>
       <%} else {user.folders[0].file.forEach(file => {%>
-      <li><%=file.name%></li>
+      <li><a href="/file/<%=file.id%>"><%=file.name%></a></li>
+      <%})}%>
     </ul>
-    <%})}%>
     <form action="/log-out" method="GET">
       <button type="submit">Log Out</button>
     </form>

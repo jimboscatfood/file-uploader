@@ -9,6 +9,7 @@
     <!-- verifying that the folder belongs to its user -->
     <% if (locals.user.id === folder.userId) {%>
     <h1><%= user.username%>'s File Storage</h1>
+    <%- include("./partials/errors.ejs")%>
     <h1><%= folder.name%></h1>
     <h2>Folders</h2>
     <form action="/folder/<%=folder.id%>/new-folder" method="GET">
@@ -26,17 +27,17 @@
     <%})}%>
     </ul>
     <h2>Files</h2>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
+    <form action="/folder/<%=folder.id%>/upload" method="POST" enctype="multipart/form-data">
         <label for="file">Choose Your File: </label><input type="file" name="upload"/>
         <button type="submit">Upload</button>
       </form>
     <ul>
       <%if (!folder.file || folder.file.length === 0) {%>
         <h3>No Files</h3>
-      <%} else {folders.file.forEach(file => {%>
-      <li><%=file.name%></li>
+      <%} else {folder.file.forEach(file => {%>
+      <li><a href="/file/<%=file.id%>"><%=file.name%></a></li>
+      <%})}%>
     </ul>
-    <%})}%>
     <% if (user.folders[0].id === folder.parentId) {%>
     <form action="/" method="GET">
       <button type="submit">Previous Folder</button>
