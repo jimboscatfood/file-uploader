@@ -11,6 +11,15 @@
     <h1><%= user.username%>'s File Storage</h1>
     <%- include("./partials/errors.ejs")%>
     <h1><%= folder.name%></h1>
+     <form action="/folder/<%=folder.id%>/share" method="POST">
+        <label>Sharing Duration:
+        <input type="number" name="duration"
+      /></label> minutes
+        <button type="submit">Share Folder</button>
+    </form>
+    <% if (locals.sharedLink) {%>
+    <p>Sharing Link: <bold><%=sharedLink%></bold><br>Expires At: <%=locals.expiresAt%></p> 
+    <%}%>
     <h2>Folders</h2>
     <form action="/folder/<%=folder.id%>/new-folder" method="GET">
         <button type="submit">New Folder</button>

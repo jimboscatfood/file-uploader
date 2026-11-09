@@ -9,6 +9,15 @@
     <% if (locals.user) {%>
     <h1><%= user.username%>'s File Storage</h1>
     <%- include("./partials/errors.ejs")%>
+    <form action="/share" method="POST">
+        <label>Sharing Duration:
+        <input type="number" name="duration"
+      /></label> minutes
+        <button type="submit">Share Folder</button>
+    </form>
+    <% if (locals.sharedLink) {%>
+    <p><bold>Sharing Link: <%=sharedLink%></bold><br>Expires At: <%=locals.expiresAt%></p> 
+    <%}%>
     <h2>Folders</h2>
     <form action="/new-folder" method="GET">
         <button type="submit">New Folder</button>

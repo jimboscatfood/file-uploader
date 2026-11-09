@@ -39,6 +39,7 @@ model Folder {
   parentId String?
   //2. the opposite relation field pointing down to the subfolders
   subFolders Folder[] @relation("Subfolders")
+  sharedFolders Sharedfolder[] //1 folder to n shared temporary link relations
 }
 
 model File {
@@ -50,4 +51,13 @@ model File {
   parentFolder Folder @relation(fields:[parentId], references:[id]) //1 folder to n files relationship
   parentId String
   publicId String @unique
+}
+
+model Sharedfolder {
+  id         String   @id @default(uuid())
+  sharedToken String @unique
+  folder Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId String 
+  expiresAt DateTime
+  createdAt  DateTime @default(now())
 }

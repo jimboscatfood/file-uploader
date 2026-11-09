@@ -90,6 +90,33 @@ async function deleteFileById(fileId) {
   });
 }
 
+async function createSharedFolder(token, folderId, expiresAt) {
+  const sharedFolder = await prisma.sharedfolder.create({
+    data: {
+      sharedToken: token,
+      folderId: folderId,
+      expiresAt: expiresAt,
+    },
+  });
+  return sharedFolder;
+}
+
+async function getSharedFolderGet(token) {
+  const sharedFolder = await prisma.sharedfolder.findUnique({
+    where: { sharedToken: token },
+    include: {
+      folder: {
+        include: {
+          subFolders: true,
+          file: true,
+        },
+      },
+    },
+  });
+
+  return sharedFolder;
+}
+
 module.exports = {
   createNewUser,
   findUserByUsername,
@@ -100,4 +127,6 @@ module.exports = {
   addNewFile,
   findFileByFileId,
   deleteFileById,
+  createSharedFolder,
+  getSharedFolderGet,
 };

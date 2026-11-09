@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= locals.folder.name%></title>
+  </head>
+  <body>
+    <h1><%= folder.name%></h1>
+    <h2>Folders</h2>
+    <ul>
+    <% if (!folder.subFolders || folder.subFolders.length === 0){%>
+      <h3>No Folders</h3>
+    <%} else {folder.subFolders.forEach(folder => {%>
+      <li><a href="/folder/<%=folder.id%>"><%= folder.name%></a>
+      </li>
+    <%})}%>
+    </ul>
+    <h2>Files</h2>
+    <ul>
+      <%if (!folder.file || folder.file.length === 0) {%>
+        <h3>No Files</h3>
+      <%} else {folder.file.forEach(file => {%>
+      <li><a href="/file/<%=file.id%>"><%=file.name%></a></li>
+      <%})}%>
+    </ul>
+  </body>
+</html>

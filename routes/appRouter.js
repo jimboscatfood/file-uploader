@@ -37,3 +37,7 @@ appRouter.post(
 appRouter.get("/file/:fileId", appController.readFileInfoGet);
 appRouter.get("/file/:fileId/delete", appController.deleteFilePost);
 appRouter.get("/file/:fileId/download", appController.downloadFileGet);
+
+appRouter.post("{/folder{/:folderId}}/share", appController.shareFolderPost);
+
+appRouter.get("/shared/:token", appController.getSharedFolderGet);

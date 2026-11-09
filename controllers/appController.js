@@ -7,6 +7,9 @@ const LocalStrategy = require("passport-local").Strategy;
 
 const bcrypt = require("bcryptjs");
 
+const crypto = require("crypto");
+const ms = require("ms");
+
 async function showIndexGet(req, res) {
   //if user is logged in
   if (req.user) {
@@ -283,6 +286,39 @@ async function downloadFileGet(req, res) {
   res.redirect(downloadUrl);
 }
 
+async function shareFolderPost(req, res) {
+  const folderId = req.params.folderId || req.user.folders[0].id;
+  const folder = await db.findFolderByFolderId(folderId);
+  const token = crypto.randomBytes(32).toString("hex");
+  const durationMins = parseInt(req.body.duration);
+  const durationMs = durationMins * 60 * 1000;
+  const expiresAt = new Date(Date.now() + durationMs);
+
+  const sharedFolder = await db.createSharedFolder(token, folderId, expiresAt);
+  const sharedLink = `${req.protocol}://${req.get("host")}/shared/${token}`;
+
+  if (folderId !== req.user.folders[0].id) {
+    return res.status(201).render("folder", {
+      user: req.user,
+      folder: folder,
+      sharedLink: sharedLink,
+      expiresAt: expiresAt,
+    });
+  } else {
+    return res.status(201).render("index", {
+      user: req.user,
+      sharedLink: sharedLink,
+      expiresAt: expiresAt,
+    });
+  }
+}
+
+async function getSharedFolderGet(req, res) {
+  const token = req.params.token;
+  const sharedFolder = await db.getSharedFolderGet(token);
+  return res.render("shared", { folder: sharedFolder.folder });
+}
+
 module.exports = {
   showIndexGet,
   userSignUpGet,
@@ -298,4 +334,6 @@ module.exports = {
   readFileInfoGet,
   deleteFilePost,
   downloadFileGet,
+  shareFolderPost,
+  getSharedFolderGet,
 };
