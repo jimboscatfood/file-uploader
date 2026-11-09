@@ -16,7 +16,7 @@
         <button type="submit">Share Folder</button>
     </form>
     <% if (locals.sharedLink) {%>
-    <p><bold>Sharing Link: <%=sharedLink%></bold><br>Expires At: <%=locals.expiresAt%></p> 
+    <p><bold>Sharing Link: <%=sharedLink%></bold>Expires At: <%=locals.expiresAt%></p> 
     <%}%>
     <h2>Folders</h2>
     <form action="/new-folder" method="GET">

@@ -33,3 +33,12 @@ App logic:
 4. the new user logs in and sees the folders/file in his master folder
 5. the user should be able to add new folders or upload files at any folder
 6. the user should be able to navigate into different folders and carry out (5)
+
+7. generate a link that can be shared with anyone
+   logic:
+   - create a prisma model for storing each temporary link
+     - each temporary link should contain:
+       - a auto generated token to be used in the URL
+       - the ID of folder that is being shared
+       - link creation date time
+       - expiry date time (requires user input for sharing duration)
